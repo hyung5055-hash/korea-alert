@@ -5,20 +5,24 @@ const APP_SECRET = process.env.APP_SECRET;
 const TG_TOKEN = process.env.TG_TOKEN;
 const CHAT_ID = process.env.CHAT_ID;
 
-let accessToken = "";
+let accessToken = null;
+let tokenExpireTime = 0;
 let history = [];
 let lastAlertTime = 0;
+ async function getAccessToken() {
+  if (accessToken && Date.now() < tokenExpireTime) {
+    return accessToken;
+  }
 
-async function getToken() {
-  const res = await axios.post(
-    "https://openapi.koreainvestment.com:9443/oauth2/tokenP",
-    {
-      grant_type: "client_credentials",
-      appkey: APP_KEY,
-      appsecret: APP_SECRET
-    }
-  );
+  const res = await axios.post("https://openapi.koreainvestment.com:9443/oauth2/tokenP", {
+    grant_type: "client_credentials",
+    appkey: process.env.APP_KEY,
+    appsecret: process.env.APP_SECRET
+  });
+
   accessToken = res.data.access_token;
+  tokenExpireTime = Date.now() + (1000 * 60 * 100); // 100분 유지
+  return accessToken;
 }
 
 async function sendTelegram(msg) {
@@ -31,12 +35,13 @@ async function sendTelegram(msg) {
   );
 }
 
-async function getPriceAndVolume() {
-  const res = await axios.get(
+async function getPriceAndVolume() {  
+ const token = await getAccessToken();  // 🔥 이 줄 추가
+ const res = await axios.get(
     "https://openapi.koreainvestment.com:9443/uapi/domestic-stock/v1/quotations/inquire-price",
     {
       headers: {
-        authorization: `Bearer ${accessToken}`,
+        authorization: `Bearer ${Token}`,
         appkey: APP_KEY,
         appsecret: APP_SECRET,
         tr_id: "FHKST01010100"
@@ -55,9 +60,9 @@ async function getPriceAndVolume() {
 }
 
 async function start() {
-  await getToken();
+await getAccessToken();  // ✅ 이걸로 바꿔
 
-  setInterval(async () => {
+ setInterval(async () => {
     try {
       const { price, volume } = await getPriceAndVolume();
       const now = Date.now();
@@ -96,7 +101,7 @@ async function start() {
     } catch (err) {
       console.log("에러:", err.message);
     }
-  }, 5000);
+  }, 15000);
 }
 
 start();
