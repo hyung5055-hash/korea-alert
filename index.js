@@ -1,30 +1,51 @@
 const axios = require("axios");
+const express = require("express");
+
+const app = express();
 
 const APP_KEY = process.env.APP_KEY;
 const APP_SECRET = process.env.APP_SECRET;
 const TG_TOKEN = process.env.TG_TOKEN;
 const CHAT_ID = process.env.CHAT_ID;
 
+const SYMBOLS = ["001740", "294870", "108320"];
+
 let accessToken = null;
 let tokenExpireTime = 0;
-let history = [];
-let lastAlertTime = 0;
- async function getAccessToken() {
+
+// 종목별 데이터 저장
+let history = {};
+let lastAlertTime = {};
+
+
+// =======================
+// 1. 토큰 발급
+// =======================
+async function getAccessToken() {
   if (accessToken && Date.now() < tokenExpireTime) {
     return accessToken;
   }
 
-  const res = await axios.post("https://openapi.koreainvestment.com:9443/oauth2/tokenP", {
-    grant_type: "client_credentials",
-    appkey: process.env.APP_KEY,
-    appsecret: process.env.APP_SECRET
-  });
+  const res = await axios.post(
+    "https://openapi.koreainvestment.com:9443/oauth2/tokenP",
+    {
+      grant_type: "client_credentials",
+      appkey: APP_KEY,
+      appsecret: APP_SECRET
+    }
+  );
 
   accessToken = res.data.access_token;
   tokenExpireTime = Date.now() + (1000 * 60 * 100); // 100분 유지
+
+  console.log("새 토큰 발급 완료");
   return accessToken;
 }
 
+
+// =======================
+// 2. 텔레그램 전송
+// =======================
 async function sendTelegram(msg) {
   await axios.post(
     `https://api.telegram.org/bot${TG_TOKEN}/sendMessage`,
@@ -35,9 +56,14 @@ async function sendTelegram(msg) {
   );
 }
 
-async function getPriceAndVolume() {  
- const token = await getAccessToken();  // 🔥 이 줄 추가
- const res = await axios.get(
+
+// =======================
+// 3. 현재가 조회
+// =======================
+async function getPriceAndVolume(symbol) {
+  const token = await getAccessToken();
+
+  const res = await axios.get(
     "https://openapi.koreainvestment.com:9443/uapi/domestic-stock/v1/quotations/inquire-price",
     {
       headers: {
@@ -48,7 +74,7 @@ async function getPriceAndVolume() {
       },
       params: {
         fid_cond_mrkt_div_code: "J",
-        fid_input_iscd: "090460"
+        fid_input_iscd: symbol
       }
     }
   );
@@ -59,56 +85,78 @@ async function getPriceAndVolume() {
   return { price, volume };
 }
 
+
+// =======================
+// 4. 감시 시작
+// =======================
 async function start() {
-await getAccessToken();  // ✅ 이걸로 바꿔
 
- setInterval(async () => {
+  await getAccessToken();
+
+  setInterval(async () => {
     try {
-      const { price, volume } = await getPriceAndVolume();
-      const now = Date.now();
 
-      history.push({ time: now, price, volume });
-      history = history.filter(h => now - h.time <= 5 * 60 * 1000);
+      for (const symbol of SYMBOLS) {
 
-      if (history.length > 1) {
-        const old = history[0];
+        if (!history[symbol]) {
+          history[symbol] = [];
+        }
 
-        const priceRate = ((price - old.price) / old.price) * 100;
-        const volumeIncrease = volume - old.volume;
-        const volumeRate = (volumeIncrease / old.volume) * 100;
+        const { price, volume } = await getPriceAndVolume(symbol);
+        const now = Date.now();
 
-        console.log(
-          `가격상승률: ${priceRate.toFixed(2)}%`,
-          `거래량증가율: ${volumeRate.toFixed(2)}%`
+        history[symbol].push({ time: now, price, volume });
+
+        // 5분 데이터만 유지
+        history[symbol] = history[symbol].filter(
+          h => now - h.time <= 5 * 60 * 1000
         );
 
-        if (
-          priceRate >= 0.01 &&
-          volumeRate >= 0.01 &&
-          now - lastAlertTime > 300000
-        ) {
-          await sendTelegram(
-            `🚀 급등 + 거래량 폭증!\n` +
-            `현재가: ${price}\n` +
-            `5분 상승률: ${priceRate.toFixed(2)}%\n` +
-            `5분 거래량 증가율: ${volumeRate.toFixed(2)}%`
+        if (history[symbol].length > 1) {
+
+          const old = history[symbol][0];
+
+          if (old.volume === 0) continue;
+
+          const priceRate = ((price - old.price) / old.price) * 100;
+          const volumeIncrease = volume - old.volume;
+          const volumeRate = (volumeIncrease / old.volume) * 100;
+
+          console.log(
+            `${symbol} | 가격상승률: ${priceRate.toFixed(2)}% | 거래량증가율: ${volumeRate.toFixed(2)}%`
           );
 
-          lastAlertTime = now;
+          if (
+            priceRate >= 1 &&                     // 1% 이상
+            volumeRate >= 30 &&                   // 거래량 30% 이상
+            (!lastAlertTime[symbol] || now - lastAlertTime[symbol] > 300000)
+          ) {
+
+            await sendTelegram(
+              `🚀 ${symbol} 급등 감지!\n` +
+              `현재가: ${price}\n` +
+              `5분 상승률: ${priceRate.toFixed(2)}%\n` +
+              `5분 거래량 증가율: ${volumeRate.toFixed(2)}%`
+            );
+
+            lastAlertTime[symbol] = now;
+          }
         }
       }
 
     } catch (err) {
       console.log("에러:", err.message);
     }
-  }, 15000);
+
+  }, 20000); // 20초 주기
 }
 
 start();
 
-const express = require("express");
-const app = express();
 
+// =======================
+// 5. Render용 웹서버
+// =======================
 app.get("/", (req, res) => {
   res.send("korea-alert running");
 });
@@ -116,6 +164,25 @@ app.get("/", (req, res) => {
 app.listen(process.env.PORT || 3000, () => {
   console.log("Web server started");
 });
+
+// 🔥 Self Ping (Sleep 방지)
+setInterval(() => {
+  axios.get("https://korea-alert.onrender.com")
+    .then(() => console.log("self ping"))
+    .catch(err => console.log("ping fail", err.message));
+}, 4 * 60 * 1000);
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
