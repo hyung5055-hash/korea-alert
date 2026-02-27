@@ -41,7 +41,7 @@ async function getPriceAndVolume() {
     "https://openapi.koreainvestment.com:9443/uapi/domestic-stock/v1/quotations/inquire-price",
     {
       headers: {
-        authorization: `Bearer ${Token}`,
+        authorization: `Bearer ${token}`,
         appkey: APP_KEY,
         appsecret: APP_SECRET,
         tr_id: "FHKST01010100"
@@ -116,17 +116,6 @@ app.get("/", (req, res) => {
 app.listen(process.env.PORT || 3000, () => {
   console.log("Web server started");
 });
-
-
-
-
-
-
-
-
-
-
-
 
 
 
