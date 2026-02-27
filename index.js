@@ -78,8 +78,8 @@ async function start() {
         );
 
         if (
-          priceRate >= 2 &&
-          volumeRate >= 30 &&
+          priceRate >= 0.01 &&
+          volumeRate >= 0.01 &&
           now - lastAlertTime > 300000
         ) {
           await sendTelegram(
@@ -100,3 +100,28 @@ async function start() {
 }
 
 start();
+
+const express = require("express");
+const app = express();
+
+app.get("/", (req, res) => {
+  res.send("korea-alert running");
+});
+
+app.listen(process.env.PORT || 3000, () => {
+  console.log("Web server started");
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
