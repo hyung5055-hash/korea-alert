@@ -129,16 +129,17 @@ async function start() {
             `${name} (${symbol}) | 가격상승률: ${changeRate.toFixed(2)}% | 거래량증가율: ${volumeRate.toFixed(2)}%`
           );
 
+          
           if (
-              changeRate >= 1 &&   // 전일대비 1% 이상
-              volumeRate >= 30     // 5분 거래량 30% 이상
-            (!lastAlertTime[symbol] || now - lastAlertTime[symbol] > 300000)
-          ) {
+              Math.abs(changeRate) >= 1 &&   // ±1% 이상
+              volumeRate >= 30 &&
+              (!lastAlertTime[symbol] || now - lastAlertTime[symbol] > 300000)
+            ){
 
             await sendTelegram(
               `🚀${name} (${symbol}) 급등 감지!\n` +
               `현재가: ${price}\n` +
-              `5분 상승률: ${priceRate.toFixed(2)}%\n` +
+              `전일대비 상승률: ${priceRate.toFixed(2)}%\n` +
               `5분 거래량 증가율: ${volumeRate.toFixed(2)}%`
             );
 
