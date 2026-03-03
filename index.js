@@ -1,4 +1,8 @@
 const axios = require("axios");
+const https = require("https");
+const agent = new https.Agent({
+  keepAlive: true
+});
 const express = require("express");
 const app = express();
 const APP_KEY = process.env.APP_KEY;
@@ -71,7 +75,9 @@ async function getPriceAndVolume(symbol) {
   const res = await axios.get(
     "https://openapi.koreainvestment.com:9443/uapi/domestic-stock/v1/quotations/inquire-price",
     {
-      headers: {
+    timeout: 10000,
+    httpsAgent: agent,
+    headers: {
         authorization: `Bearer ${token}`,
         appkey: APP_KEY,
         appsecret: APP_SECRET,
