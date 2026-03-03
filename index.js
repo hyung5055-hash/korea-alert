@@ -18,7 +18,7 @@ let tokenExpireTime = 0;
 // 종목별 데이터 저장
 let history = {};
 let lastAlertTime = {};
-
+let lastPriceAlertTime = {};
 
 // =======================
 // 1. 토큰 발급
@@ -131,7 +131,25 @@ async function start() {
           const direction = changeRate > 0 ? "상승" : "하락";
           const emoji = changeRate > 0 ? "🚀" : "📉";
 
+          // 🔥 가격 전용 알림 (±3%)
           if (
+            Math.abs(changeRate) >= 3 &&
+            (!lastPriceAlertTime[symbol] || now - lastPriceAlertTime[symbol] > 300000)
+          ) {
+            const direction = changeRate > 0 ? "상승" : "하락";
+            const emoji = changeRate > 0 ? "🚀" : "📉";
+
+            await sendTelegram(
+              `${emoji} ${name} (${symbol}) ${direction} 3% 돌파!\n` +
+              `현재가: ${price}\n` +
+              `전일대비: ${changeRate.toFixed(2)}%`
+  );
+
+  lastPriceAlertTime[symbol] = now;
+}
+                 
+  // 가격 전용 텔레그램
+           if (
               Math.abs(changeRate) >= 1 &&   // ±1% 이상
               volumeRate >= 30 &&
               (!lastAlertTime[symbol] || now - lastAlertTime[symbol] > 300000)
