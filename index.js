@@ -3,6 +3,9 @@ const https = require("https");
 const agent = new https.Agent({
   keepAlive: true
 });
+axios.defaults.timeout = 10000;
+axios.defaults.httpsAgent = agent;
+axios.defaults.headers.common["Connection"] = "keep-alive";
 const express = require("express");
 const app = express();
 const APP_KEY = process.env.APP_KEY;
@@ -72,32 +75,37 @@ async function sendTelegram(msg) {
 async function getPriceAndVolume(symbol) {
   const token = await getAccessToken();
 
-  const res = await axios.get(
-    "https://openapi.koreainvestment.com:9443/uapi/domestic-stock/v1/quotations/inquire-price",
-    {
-    timeout: 10000,
-    httpsAgent: agent,
-    headers: {
-        authorization: `Bearer ${token}`,
-        appkey: APP_KEY,
-        appsecret: APP_SECRET,
-        tr_id: "FHKST01010100"
-      },
-      params: {
-        fid_cond_mrkt_div_code: "J",
-        fid_input_iscd: symbol
-      }
+  for (let i = 0; i < 2; i++) {   // 🔥 2번까지 재시도
+    try {
+      const res = await axios.get(
+        "https://openapi.koreainvestment.com:9443/uapi/domestic-stock/v1/quotations/inquire-price",
+        {
+          headers: {
+            authorization: `Bearer ${token}`,
+            appkey: APP_KEY,
+            appsecret: APP_SECRET,
+            tr_id: "FHKST01010100"
+          },
+          params: {
+            fid_cond_mrkt_div_code: "J",
+            fid_input_iscd: symbol
+          }
+        }
+      );
+
+      const price = parseInt(res.data.output.stck_prpr);
+      const volume = parseInt(res.data.output.acml_vol);
+      const changeRate = parseFloat(res.data.output.prdy_ctrt);
+      const name = STOCK_NAMES[symbol] || symbol;
+
+      return { name, price, volume, changeRate };
+
+    } catch (err) {
+      console.log("API 재시도:", i + 1);
+      if (i === 1) throw err;
     }
-  );
-
-  const price = parseInt(res.data.output.stck_prpr);
-  const volume = parseInt(res.data.output.acml_vol);  
-  const changeRate = parseFloat(res.data.output.prdy_ctrt);  
-  const name = STOCK_NAMES[symbol] || symbol;
-  
-  return { name, price, volume, changeRate };  
+  }
 }
-
 
 // =======================
 // 4. 감시 시작
