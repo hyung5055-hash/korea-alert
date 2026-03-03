@@ -96,6 +96,16 @@ async function start() {
   await getAccessToken();
 
   setInterval(async () => {
+const nowTime = new Date();
+const hour = nowTime.getHours();
+const minute = nowTime.getMinutes();
+const currentMinutes = hour * 60 + minute;
+
+// 09:00 ~ 20:00만 실행
+if (currentMinutes < 480 || currentMinutes > 1200) {
+  return;
+}
+    
     try {
 
       for (const symbol of SYMBOLS) {
@@ -176,7 +186,6 @@ async function start() {
 
 start();
 
-
 // =======================
 // 5. Render용 웹서버
 // =======================
@@ -195,16 +204,29 @@ setInterval(() => {
     .catch(err => console.log("ping fail", err.message));
 }, 4 * 60 * 1000);
 
+// =======================
+// 🔥 20:10 데이터 리셋
+// =======================
 
+function resetData() {
+  console.log("📌 20:10 장 종료 → 데이터 리셋");
+  history = {};
+  lastAlertTime = {};
+  lastPriceAlertTime = {};
+}
 
+setInterval(() => {
+  const now = new Date();
+  const hour = now.getHours();
+  const minute = now.getMinutes();
 
-
-
-
-
-
-
-
-
-
-
+  // 평일 + 20:10
+  if (
+    now.getDay() >= 1 &&
+    now.getDay() <= 5 &&
+    hour === 20 &&
+    minute === 10
+  ) {
+    resetData();
+  }
+}, 60000);
