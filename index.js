@@ -20,6 +20,11 @@ let history = {};
 let lastAlertTime = {};
 let lastPriceAlertTime = {};
 
+function isAfter8PM() {
+  const now = new Date();
+  return now.getHours() >= 20;
+}
+
 // =======================
 // 1. 토큰 발급
 // =======================
@@ -38,7 +43,7 @@ async function getAccessToken() {
   );
 
   accessToken = res.data.access_token;
-  tokenExpireTime = Date.now() + (1000 * 60 * 60 * 15); // 100분 유지
+  tokenExpireTime = Date.now() + (1000 * 60 * 60 * 15); // 15시간 유지
 
   console.log("새 토큰 발급 완료");
   return accessToken;
@@ -108,6 +113,12 @@ if (currentMinutes < 480 || currentMinutes > 1200) {
     
     try {
 
+    // 🔥 20시 이후 알림 쿨타임 리셋
+    if (isAfter8PM()) {
+      lastAlertTime = {};
+      lastPriceAlertTime = {};
+    }
+      
       for (const symbol of SYMBOLS) {
 
         if (!history[symbol]) {
@@ -142,10 +153,11 @@ if (currentMinutes < 480 || currentMinutes > 1200) {
           const emoji = changeRate > 0 ? "🚀" : "📉";
 
           // 🔥 가격 전용 알림 (±3%)
-          if (
-            Math.abs(changeRate) >= 3 &&
-            (!lastPriceAlertTime[symbol] || now - lastPriceAlertTime[symbol] > 300000)
-          ) {
+         if (
+          !isAfter8PM() &&  // 🔥 장중만
+          Math.abs(changeRate) >= 3 &&
+          (!lastPriceAlertTime[symbol] || now - lastPriceAlertTime[symbol] > 300000)
+        ) {
             const direction = changeRate > 0 ? "상승" : "하락";
             const emoji = changeRate > 0 ? "🚀" : "📉";
 
@@ -159,11 +171,13 @@ if (currentMinutes < 480 || currentMinutes > 1200) {
 }
                  
   // 가격 전용 텔레그램
+     
            if (
-              Math.abs(changeRate) >= 1 &&   // ±1% 이상
+              !isAfter8PM() &&  // 🔥 장중만
+              Math.abs(changeRate) >= 1 &&
               volumeRate >= 30 &&
               (!lastAlertTime[symbol] || now - lastAlertTime[symbol] > 300000)
-            ){
+          ){
 
             await sendTelegram(
               `🚀${name} (${symbol}) 급등 감지!\n` +
