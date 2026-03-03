@@ -44,7 +44,6 @@ async function getAccessToken() {
   return accessToken;
 }
 
-
 // =======================
 // 2. 텔레그램 전송
 // =======================
