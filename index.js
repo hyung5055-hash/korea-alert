@@ -81,7 +81,13 @@ async function getPriceAndVolume(symbol) {
 
   const price = parseInt(res.data.output.stck_prpr);
   const volume = parseInt(res.data.output.acml_vol);  
-  const name = res.data.output.prdt_abrv_name;
+  console.log("API 응답:", res.data.output);
+  const name =
+  res.data.output.prdt_abrv_name ||
+  res.data.output.hts_kor_isnm ||
+  res.data.output.stck_shrn_isnm ||
+  "종목명없음";
+
   
   return { name, price, volume };
 }
