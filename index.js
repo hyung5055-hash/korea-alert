@@ -126,7 +126,7 @@ async function start() {
           const volumeRate = (volumeIncrease / old.volume) * 100;
 
           console.log(
-            `${name} (${symbol}) | 가격상승률: ${priceRate.toFixed(2)}% | 거래량증가율: ${volumeRate.toFixed(2)}%`
+            `${name} (${symbol}) | 가격상승률: ${changeRate.toFixed(2)}% | 거래량증가율: ${volumeRate.toFixed(2)}%`
           );
 
           if (
