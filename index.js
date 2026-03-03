@@ -128,7 +128,9 @@ async function start() {
             `${name} (${symbol}) | 가격상승률: ${changeRate.toFixed(2)}% | 거래량증가율: ${volumeRate.toFixed(2)}%`
           );
 
-          
+          const direction = changeRate > 0 ? "상승" : "하락";
+          const emoji = changeRate > 0 ? "🚀" : "📉";
+
           if (
               Math.abs(changeRate) >= 1 &&   // ±1% 이상
               volumeRate >= 30 &&
@@ -138,7 +140,7 @@ async function start() {
             await sendTelegram(
               `🚀${name} (${symbol}) 급등 감지!\n` +
               `현재가: ${price}\n` +
-              `전일대비 상승률: ${priceRate.toFixed(2)}%\n` +
+              `전일대비: ${priceRate.toFixed(2)}%\n` +
               `5분 거래량 증가율: ${volumeRate.toFixed(2)}%`
             );
 
