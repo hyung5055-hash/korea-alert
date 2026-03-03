@@ -101,7 +101,9 @@ async function getPriceAndVolume(symbol) {
       return { name, price, volume, changeRate };
 
     } catch (err) {
-      console.log("API 재시도:", i + 1);
+      
+console.log("API 실패 상세:", err.code, err.message, err.response?.data);
+      
       if (i === 1) throw err;
     }
   }
