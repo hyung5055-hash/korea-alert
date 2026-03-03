@@ -38,7 +38,7 @@ async function getAccessToken() {
   );
 
   accessToken = res.data.access_token;
-  tokenExpireTime = Date.now() + (1000 * 60 * 100); // 100분 유지
+  tokenExpireTime = Date.now() + (1000 * 60 * 60 * 15); // 100분 유지
 
   console.log("새 토큰 발급 완료");
   return accessToken;
