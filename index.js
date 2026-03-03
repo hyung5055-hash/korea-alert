@@ -106,7 +106,7 @@ const hour = nowTime.getHours();
 const minute = nowTime.getMinutes();
 const currentMinutes = hour * 60 + minute;
 
-// 09:00 ~ 20:00만 실행
+// 08:00 ~ 20:00만 실행
 if (currentMinutes < 480 || currentMinutes > 1200) {
   return;
 }
