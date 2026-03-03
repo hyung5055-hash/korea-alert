@@ -206,7 +206,7 @@ const currentMinutes = hour * 60 + minute;
       }
 
     } catch (err) {
-      console.log("에러:", err code , err.message);
+      console.log("에러:", err.code , err.message);
     }
 
   }, 20000); // 20초 주기
