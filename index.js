@@ -1,14 +1,16 @@
 const axios = require("axios");
 const express = require("express");
-
 const app = express();
-
 const APP_KEY = process.env.APP_KEY;
 const APP_SECRET = process.env.APP_SECRET;
 const TG_TOKEN = process.env.TG_TOKEN;
 const CHAT_ID = process.env.CHAT_ID;
-
 const SYMBOLS = ["001740", "294870", "108320"];
+const STOCK_NAMES = {
+  "001740": "SK네트웍스",
+  "294870": "HDC현대산업개발",
+  "108320": "LX세미콘"
+};
 
 let accessToken = null;
 let tokenExpireTime = 0;
@@ -81,12 +83,7 @@ async function getPriceAndVolume(symbol) {
 
   const price = parseInt(res.data.output.stck_prpr);
   const volume = parseInt(res.data.output.acml_vol);  
-  const name =
-  res.data.output.prdt_abrv_name ||
-  res.data.output.hts_kor_isnm ||
-  res.data.output.stck_shrn_isnm ||
-  "종목명없음";
-
+  const name = STOCK_NAMES[symbol] || symbol;
   
   return { name, price, volume };
 }
