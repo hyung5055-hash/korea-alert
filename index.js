@@ -80,9 +80,10 @@ async function getPriceAndVolume(symbol) {
   );
 
   const price = parseInt(res.data.output.stck_prpr);
-  const volume = parseInt(res.data.output.acml_vol);
-
-  return { price, volume };
+  const volume = parseInt(res.data.output.acml_vol);  
+  const name = res.data.output.prdt_abrv_name;
+  
+  return { name, price, volume };
 }
 
 
@@ -102,7 +103,7 @@ async function start() {
           history[symbol] = [];
         }
 
-        const { price, volume } = await getPriceAndVolume(symbol);
+        const { name, price, volume } = await getPriceAndVolume(symbol);
         const now = Date.now();
 
         history[symbol].push({ time: now, price, volume });
@@ -133,7 +134,7 @@ async function start() {
           ) {
 
             await sendTelegram(
-              `🚀 ${symbol} 급등 감지!\n` +
+              `🚀${name} (${symbol}) 급등 감지!\n` +
               `현재가: ${price}\n` +
               `5분 상승률: ${priceRate.toFixed(2)}%\n` +
               `5분 거래량 증가율: ${volumeRate.toFixed(2)}%`
