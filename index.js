@@ -81,7 +81,6 @@ async function getPriceAndVolume(symbol) {
 
   const price = parseInt(res.data.output.stck_prpr);
   const volume = parseInt(res.data.output.acml_vol);  
-  console.log("API 응답:", res.data.output);
   const name =
   res.data.output.prdt_abrv_name ||
   res.data.output.hts_kor_isnm ||
@@ -130,7 +129,7 @@ async function start() {
           const volumeRate = (volumeIncrease / old.volume) * 100;
 
           console.log(
-            `${symbol} | 가격상승률: ${priceRate.toFixed(2)}% | 거래량증가율: ${volumeRate.toFixed(2)}%`
+            `${name} (${symbol}) | 가격상승률: ${priceRate.toFixed(2)}% | 거래량증가율: ${volumeRate.toFixed(2)}%`
           );
 
           if (
