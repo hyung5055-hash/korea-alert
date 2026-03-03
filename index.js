@@ -106,7 +106,8 @@ async function start() {
           history[symbol] = [];
         }
 
-        const { name, price, volume } = await getPriceAndVolume(symbol);
+        const { name, price, volume, changeRate } = await getPriceAndVolume(symbol);      
+        const priceRate = changeRate;  // 그냥 이름 통일용
         const now = Date.now();
 
         history[symbol].push({ time: now, price, volume });
