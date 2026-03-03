@@ -83,9 +83,10 @@ async function getPriceAndVolume(symbol) {
 
   const price = parseInt(res.data.output.stck_prpr);
   const volume = parseInt(res.data.output.acml_vol);  
+  const changeRate = parseFloat(res.data.output.prdy_ctrt);  
   const name = STOCK_NAMES[symbol] || symbol;
   
-  return { name, price, volume };
+  return { name, price, volume, changeRate };  
 }
 
 
@@ -121,7 +122,6 @@ async function start() {
 
           if (old.volume === 0) continue;
 
-          const priceRate = ((price - old.price) / old.price) * 100;
           const volumeIncrease = volume - old.volume;
           const volumeRate = (volumeIncrease / old.volume) * 100;
 
@@ -130,8 +130,8 @@ async function start() {
           );
 
           if (
-            priceRate >= 1 &&                     // 1% 이상
-            volumeRate >= 30 &&                   // 거래량 30% 이상
+              changeRate >= 1 &&   // 전일대비 1% 이상
+              volumeRate >= 30     // 5분 거래량 30% 이상
             (!lastAlertTime[symbol] || now - lastAlertTime[symbol] > 300000)
           ) {
 
