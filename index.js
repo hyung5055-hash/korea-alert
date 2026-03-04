@@ -168,10 +168,10 @@ if (currentMinutes < 480 || currentMinutes > 1200) {
           const direction = changeRate > 0 ? "상승" : "하락";
           const emoji = changeRate > 0 ? "🚀" : "📉";
 
-          // 🔥 가격 전용 알림 (±3%)
+          // 🔥 가격 전용 알림 (±10%)
          if (
           !isAfter8PM() &&  // 🔥 장중만
-          Math.abs(changeRate) >= 3 &&
+          Math.abs(changeRate) >= 10 &&
           (!lastPriceAlertTime[symbol] || now - lastPriceAlertTime[symbol] > 300000)
         ) {
             const direction = changeRate > 0 ? "상승" : "하락";
