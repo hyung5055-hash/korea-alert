@@ -169,11 +169,14 @@ const currentMinutes = hour * 60 + minute;
 
           const volumeIncrease = volume - old.volume;
           const volumeRate = (volumeIncrease / old.volume) * 100;
+          const profit = price - buyPrice;
+          const profitRate = ((price - buyPrice) / buyPrice) * 100;
 
           console.log(
-            `${name} (${symbol}) | 가격상승률: ${changeRate.toFixed(2)}% | 거래량증가율: ${volumeRate.toFixed(2)}%`
-          );
-
+            `${name} (${symbol}) | 가격상승률: ${changeRate.toFixed(2)}% | 거래량증가율: ${volumeRate.toFixed(2)}%` |
+              순이익률: ${profitRate.toFixed(2)}%`
+              );
+              
           const direction = changeRate > 0 ? "상승" : "하락";
           const emoji = changeRate > 0 ? "🚀" : "📉";
 
