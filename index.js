@@ -247,34 +247,28 @@ function resetData() {
 }
 
 setInterval(() => {
-  const now = new Date();
+
+  const now = new Date(Date.now() + 9 * 60 * 60 * 1000);
   const hour = now.getHours();
   const minute = now.getMinutes();
+  const day = now.getDay();
 
   if (
-    now.getDay() >= 1 &&
-    now.getDay() <= 5 &&
+    day >= 1 &&
+    day <= 5 &&
     hour === 20 &&
     minute >= 10 &&
     !resetDoneToday
   ) {
     resetData();
     resetDoneToday = true;
+    console.log("📌 장 종료 데이터 리셋");
   }
 
-  // 자정 지나면 리셋 플래그 초기화
-  if (hour === 0 && minute === 0) {
+  if (hour === 0 && minute < 5) {
     resetDoneToday = false;
   }
 
 }, 60000);
-
-
-
-
-
-
-
-
 
 
