@@ -140,7 +140,6 @@ const currentMinutes = hour * 60 + minute;
       lastAlertTime = {};
       lastPriceAlertTime = {};
     }
-      
       for (const symbol of SYMBOLS) {
 
         if (!history[symbol]) {
@@ -181,7 +180,8 @@ const currentMinutes = hour * 60 + minute;
           // 🔥 가격 전용 알림 (±3%)
          if (
           !isAfter8PM() &&  // 🔥 장중만
-          Math.abs(changeRate) >= 3 &&
+          Math.abs(changeRate) >= 3 && 
+          isProfit &&
           (!lastPriceAlertTime[symbol] || now - lastPriceAlertTime[symbol] > 300000)
         ) {
             const direction = changeRate > 0 ? "상승" : "하락";
@@ -202,6 +202,7 @@ const currentMinutes = hour * 60 + minute;
               !isAfter8PM() &&  // 🔥 장중만
               Math.abs(changeRate) >= 1 &&
               volumeRate >= 30 &&
+              isProfit &&
               (!lastAlertTime[symbol] || now - lastAlertTime[symbol] > 300000)
           ){
 
