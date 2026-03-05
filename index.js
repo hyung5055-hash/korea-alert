@@ -26,6 +26,7 @@ let tokenExpireTime = 0;
 let history = {};
 let lastAlertTime = {};
 let lastPriceAlertTime = {};
+let resetDoneToday = false;
 
 function isAfter8PM() {
   const now = new Date();
@@ -250,13 +251,30 @@ setInterval(() => {
   const hour = now.getHours();
   const minute = now.getMinutes();
 
-  // 평일 + 20:10
   if (
     now.getDay() >= 1 &&
     now.getDay() <= 5 &&
     hour === 20 &&
-    minute === 10
+    minute >= 10 &&
+    !resetDoneToday
   ) {
     resetData();
+    resetDoneToday = true;
   }
+
+  // 자정 지나면 리셋 플래그 초기화
+  if (hour === 0 && minute === 0) {
+    resetDoneToday = false;
+  }
+
 }, 60000);
+
+
+
+
+
+
+
+
+
+
