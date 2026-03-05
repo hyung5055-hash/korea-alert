@@ -204,12 +204,13 @@ const currentMinutes = hour * 60 + minute;
               (!lastAlertTime[symbol] || now - lastAlertTime[symbol] > 300000)
           ){
 
-            await sendTelegram(
-              `🚀${name} (${symbol}) 급등 감지!\n` +
-              `현재가: ${price}\n` +
-              `전일대비: ${priceRate.toFixed(2)}%\n` +
-              `5분 거래량 증가율: ${volumeRate.toFixed(2)}%`
-            );
+           await sendTelegram(
+            `🚀${name} (${symbol}) 급등 감지!\n` +
+            `현재가: ${price}\n` +
+            `매입가: ${buyPrice}\n` +
+            `전일대비: ${priceRate.toFixed(2)}%\n` +
+            `5분 거래량 증가율: ${volumeRate.toFixed(2)}%`
+           );
 
             lastAlertTime[symbol] = now;
           }
