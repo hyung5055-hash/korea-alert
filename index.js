@@ -123,9 +123,9 @@ const minute = nowTime.getMinutes();
 const currentMinutes = hour * 60 + minute;
 
 // 08:00 ~ 20:00만 실행
-if (currentMinutes < 480 || currentMinutes > 1200) {
-  return;
-}
+//if (currentMinutes < 480 || currentMinutes > 1200) {
+//  return;
+//}
     
     try {
 
