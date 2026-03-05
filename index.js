@@ -18,6 +18,11 @@ const STOCK_NAMES = {
   "294870": "HDC현대산업개발",
   "108320": "LX세미콘"
 };
+const BUY_PRICES = {
+  "108320": 52475,   // LX세미콘
+  "001740": 5554,    // SK네트웍스
+  "294870": 23735    // HDC현대산업개발
+};
 
 let accessToken = null;
 let tokenExpireTime = 0;
@@ -142,7 +147,10 @@ const currentMinutes = hour * 60 + minute;
           history[symbol] = [];
         }
 
-        const { name, price, volume, changeRate } = await getPriceAndVolume(symbol);      
+        const { name, price, volume, changeRate } = await getPriceAndVolume(symbol);   
+        const { name, price, volume, changeRate } = await getPriceAndVolume(symbol);
+        const buyPrice = BUY_PRICES[symbol];
+        const isProfit = price > buyPrice;   
         const priceRate = changeRate;  // 그냥 이름 통일용
         const now = Date.now();
 
