@@ -173,7 +173,11 @@ const currentMinutes = hour * 60 + minute;
           console.log(
             `${name} (${symbol}) | 가격상승률: ${changeRate.toFixed(2)}% | 거래량증가율: ${volumeRate.toFixed(2)}% | 순이익률: ${profitRate.toFixed(2)}%`
               );
-              
+
+              if (profitRate > 0) {
+                console.log(`\x1b[31m${name} 순이익률 +${profitRate.toFixed(2)}%\x1b[0m`);
+              }
+    
           const direction = changeRate > 0 ? "상승" : "하락";
           const emoji = changeRate > 0 ? "🚀" : "📉";
 
