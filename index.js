@@ -181,26 +181,29 @@ const currentMinutes = hour * 60 + minute;
           const direction = changeRate > 0 ? "상승" : "하락";
           const emoji = changeRate > 0 ? "🚀" : "📉";
 
-          // 🔥 가격 전용 알림 (±3%)
+          // 🔥 가격 전용 알림 (±10%)
          if (
           !isAfter8PM() &&  // 🔥 장중만
-          Math.abs(changeRate) >= 3 && 
+          Math.abs(changeRate) >= 10 && 
           isProfit &&
           (!lastPriceAlertTime[symbol] || now - lastPriceAlertTime[symbol] > 300000)
         ) {
             const direction = changeRate > 0 ? "상승" : "하락";
+            const buy = BUY_PRICES[symbol];
+            const profitRate = ((price - buy) / buy) * 100;
             const emoji = changeRate > 0 ? "🚀" : "📉";
+            
+          await sendTelegram(
+          `${emoji} ${name} (${symbol}) ${direction} 3% 돌파!\n` +
+          `현재가: ${price}\n` +
+          `전일대비: ${changeRate.toFixed(2)}%\n` +
+          `수익률: ${profitRate >= 0 ? "📈 +" : "📉 "}${profitRate.toFixed(2)}%`
+          );
 
-            await sendTelegram(
-              `${emoji} ${name} (${symbol}) ${direction} 3% 돌파!\n` +
-              `현재가: ${price}\n` +
-              `전일대비: ${changeRate.toFixed(2)}%`
-  );
-
-  lastPriceAlertTime[symbol] = now;
+           lastPriceAlertTime[symbol] = now;
 }
                  
-  // 가격 전용 텔레그램
+  // 급등 전용 텔레그램
      
            if (
               !isAfter8PM() &&  // 🔥 장중만
