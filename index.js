@@ -189,12 +189,24 @@ const currentMinutes = hour * 60 + minute;
           (!lastPriceAlertTime[symbol] || now - lastPriceAlertTime[symbol] > 300000)
         ) {
             const direction = changeRate > 0 ? "상승" : "하락";
+            const emoji = changeRate > 0 ? "🚀" : "📉";
             const buy = BUY_PRICES[symbol];
             const profitRate = ((price - buy) / buy) * 100;
-            const emoji = changeRate > 0 ? "🚀" : "📉";
-            
+            const wasBelowZero =
+            history[symbol] &&
+            history[symbol].length > 1 &&
+            ((history[symbol][history[symbol].length - 2] - buy) / buy) * 100 <= 0;
+
+            if (profitRate > 0 && wasBelowZero) {
+            await sendTelegram(
+            `💰 ${name} (${symbol}) 수익권 진입!\n` +
+            `현재가: ${price}\n` +
+            `수익률: +${profitRate.toFixed(2)}%`
+            );
+            }
+
           await sendTelegram(
-          `${emoji} ${name} (${symbol}) ${direction} 3% 돌파!\n` +
+          `${emoji} ${name} (${symbol}) ${direction} 10% 돌파!\n` +
           `현재가: ${price}\n` +
           `전일대비: ${changeRate.toFixed(2)}%\n` +
           `수익률: ${profitRate >= 0 ? "📈 +" : "📉 "}${profitRate.toFixed(2)}%`
