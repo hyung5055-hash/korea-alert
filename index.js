@@ -12,16 +12,24 @@ const APP_KEY = process.env.APP_KEY;
 const APP_SECRET = process.env.APP_SECRET;
 const TG_TOKEN = process.env.TG_TOKEN;
 const CHAT_ID = process.env.CHAT_ID;
-const SYMBOLS = ["001740", "294870", "108320"];
+const SYMBOLS = ["001740", "294870", "108320", "018250", "090460"];
 const STOCK_NAMES = {
   "001740": "SK네트웍스",
   "294870": "HDC현대산업개발",
-  "108320": "LX세미콘"
+  "108320": "LX세미콘",
+  "018250": "애경산업",
+  "090460": "비에이치"
 };
+
 const BUY_PRICES = {
   "108320": 52475,   // LX세미콘
   "001740": 5554,    // SK네트웍스
-  "294870": 23735    // HDC현대산업개발
+  "294870": 23735,   // HDC현대산업개발
+  "018250": 15075,   // 애경산업
+  "090460": 17128,   // 비에이치
+};
+
+  
 };
 
 let accessToken = null;
