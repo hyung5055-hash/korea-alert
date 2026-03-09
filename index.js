@@ -192,17 +192,28 @@ const currentMinutes = hour * 60 + minute;
             const emoji = changeRate > 0 ? "🚀" : "📉";
             const buy = BUY_PRICES[symbol];
             const profitRate = ((price - buy) / buy) * 100;
-            const wasBelowZero =
-            history[symbol] &&
-            history[symbol].length > 1 &&
-            ((history[symbol][history[symbol].length - 2] - buy) / buy) * 100 <= 0;
-
-            if (profitRate > 0 && wasBelowZero) {
+            
+            if (profitRate > 0) {
+            if (!profitAlertStartTime[symbol]) {
+            profitAlertStartTime[symbol] = now;
+            }
+            
+            if (now - profitAlertStartTime[symbol] <= 10800000) {
+            if (
+            !lastProfitAlertTime[symbol] ||
+            now - lastProfitAlertTime[symbol] > 300000
+            ) {
             await sendTelegram(
-            `💰 ${name} (${symbol}) 수익권 진입!\n` +
+            `💰 ${name} (${symbol}) 수익권 유지중!\n` +
             `현재가: ${price}\n` +
             `수익률: +${profitRate.toFixed(2)}%`
             );
+            
+            lastProfitAlertTime[symbol] = now;
+            }
+            }
+            } else {
+            profitAlertStartTime[symbol] = null;
             }
 
           await sendTelegram(
