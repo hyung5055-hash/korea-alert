@@ -31,6 +31,8 @@ let tokenExpireTime = 0;
 let history = {};
 let lastAlertTime = {};
 let lastPriceAlertTime = {};
+let lastProfitAlertTime = {};
+let profitAlertStartTime = {};
 let resetDoneToday = false;
 
 function isAfter8PM() {
