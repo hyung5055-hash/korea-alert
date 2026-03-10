@@ -110,9 +110,9 @@ async function getPriceAndVolume(symbol) {
       const price = parseInt(res.data.output.stck_prpr);
       const volume = parseInt(res.data.output.acml_vol);
       const changeRate = parseFloat(res.data.output.prdy_ctrt);
+      const strength = parseFloat(res.data.output.tday_rltv);
       const name = STOCK_NAMES[symbol] || symbol;
-
-      return { name, price, volume, changeRate };
+      return { name, price, volume, changeRate, strength };
 
     } catch (err) {
       
@@ -154,7 +154,7 @@ const currentMinutes = hour * 60 + minute;
           history[symbol] = [];
         }
 
-        const { name, price, volume, changeRate } = await getPriceAndVolume(symbol);
+        const { name, price, volume, changeRate, strength } = await getPriceAndVolume(symbol);
         const buyPrice = BUY_PRICES[symbol];
         const isProfit = price > buyPrice;   
         const priceRate = changeRate;  // 그냥 이름 통일용
@@ -179,8 +179,9 @@ const currentMinutes = hour * 60 + minute;
           const profitRate = ((price - buyPrice) / buyPrice) * 100;
 
           console.log(
-            `${name} (${symbol}) | 가격상승률: ${changeRate.toFixed(2)}% | 거래량증가율: ${volumeRate.toFixed(2)}% | 순이익률: ${profitRate.toFixed(2)}%`
+            `${name} | 가격상승률: ${changeRate.toFixed(2)}% | 거래량증가율: ${volumeRate.toFixed(2)}% | 순이익률: ${profitRate.toFixed(2)}%` | 체결강도: ${strength.toFixed(2)}
               );
+
 
               if (profitRate > 0) {
                 console.log(`\x1b[31m${name} 순이익률 +${profitRate.toFixed(2)}%\x1b[0m`);
