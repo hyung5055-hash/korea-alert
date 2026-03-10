@@ -110,10 +110,10 @@ async function getPriceAndVolume(symbol) {
       const price = parseInt(res.data.output.stck_prpr);
       const volume = parseInt(res.data.output.acml_vol);
       const changeRate = parseFloat(res.data.output.prdy_ctrt);
-      const strength = parseFloat(res.data.output.tday_rltv);
+      const dayVolumeRate = parseFloat(res.data.output.prdy_vrss_vol_rate || 0);
       const name = STOCK_NAMES[symbol] || symbol;
-      return { name, price, volume, changeRate, strength };
-
+      return { name, price, volume, changeRate, dayVolumeRate };
+      
     } catch (err) {
       
 console.log("API 실패 상세:", err.code, err.message, err.response?.data);
@@ -154,7 +154,7 @@ const currentMinutes = hour * 60 + minute;
           history[symbol] = [];
         }
 
-        const { name, price, volume, changeRate, strength } = await getPriceAndVolume(symbol);
+        const { name, price, volume, changeRate, dayVolumeRate } = await getPriceAndVolume(symbol);
         const buyPrice = BUY_PRICES[symbol];
         const isProfit = price > buyPrice;   
         const priceRate = changeRate;  // 그냥 이름 통일용
@@ -179,9 +179,8 @@ const currentMinutes = hour * 60 + minute;
           const profitRate = ((price - buyPrice) / buyPrice) * 100;
 
           console.log(
-            `${name} | 가격상승률: ${changeRate.toFixed(2)}% | 거래량증가율: ${volumeRate.toFixed(2)}% | 순이익률: ${profitRate.toFixed(2)}% | 체결강도: ${strength.toFixed(2)}`
-              );
-
+`${name} | 가격상승률: ${changeRate.toFixed(2)}% | 거래량증가율: ${volumeRate.toFixed(2)}% | 전일거래량비: ${dayVolumeRate.toFixed(2)}% | 순이익률: ${profitRate.toFixed(2)}%`
+);
 
               if (profitRate > 0) {
                 console.log(`\x1b[31m${name} 순이익률 +${profitRate.toFixed(2)}%\x1b[0m`);
@@ -241,6 +240,7 @@ const currentMinutes = hour * 60 + minute;
               !isAfter8PM() &&  // 🔥 장중만
               Math.abs(changeRate) >= 1 &&
               volumeRate >= 30 &&
+              dayVolumeRate >= 150 &&
               isProfit &&
               (!lastAlertTime[symbol] || now - lastAlertTime[symbol] > 300000)
           ){
