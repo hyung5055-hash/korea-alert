@@ -179,7 +179,7 @@ const currentMinutes = hour * 60 + minute;
           const profitRate = ((price - buyPrice) / buyPrice) * 100;
 
           console.log(
-            `${name} | 가격상승률: ${changeRate.toFixed(2)}% | 거래량증가율: ${volumeRate.toFixed(2)}% | 순이익률: ${profitRate.toFixed(2)}%` | 체결강도: ${strength.toFixed(2)}
+            `${name} | 가격상승률: ${changeRate.toFixed(2)}% | 거래량증가율: ${volumeRate.toFixed(2)}% | 순이익률: ${profitRate.toFixed(2)}%` | 체결강도: ${strength.toFixed(2)}`
               );
 
 
