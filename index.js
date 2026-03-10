@@ -14,8 +14,8 @@ const TG_TOKEN = process.env.TG_TOKEN;
 const CHAT_ID = process.env.CHAT_ID;
 const SYMBOLS = ["001740", "294870", "108320", "018250", "090460"];
 const STOCK_NAMES = {
-  "001740": "SK네트웍스",
-  "294870": "HDC현대산업개발",
+  "001740": "SK네트웍",
+  "294870": "HDC현산",
   "108320": "LX세미콘",
   "018250": "애경산업",
   "090460": "비에이치"
