@@ -177,11 +177,15 @@ const currentMinutes = hour * 60 + minute;
           const volumeRate = (volumeIncrease / old.volume) * 100;
           const profit = price - buyPrice;
           const profitRate = ((price - buyPrice) / buyPrice) * 100;
-
+          const volumeText =
+            volumeRate >= 100
+              ? `\x1b[1;34m${volumeRate.toFixed(2)}%\x1b[0m`
+              : `${volumeRate.toFixed(2)}%`;
+          
           console.log(
-`${name} | 가격상승률: ${changeRate.toFixed(2)}% | 거래량증가율: ${volumeRate.toFixed(2)}% | 전일거래량비: ${dayVolumeRate.toFixed(2)}% | 순이익률: ${profitRate.toFixed(2)}%`
-);
-
+          `${name} | 가격상승률: ${changeRate.toFixed(2)}% | 거래량증가율: ${volumeText} | 전일거래량비: ${dayVolumeRate.toFixed(2)}% | 순이익률: ${profitRate.toFixed(2)}%`
+          );
+          
               if (profitRate > 0) {
                 console.log(`\x1b[31m${name} 순이익률 +${profitRate.toFixed(2)}%\x1b[0m`);
               }
